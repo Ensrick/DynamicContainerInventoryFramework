@@ -279,9 +279,21 @@ namespace {
 				logger::warn("Config <{}>/[{}] has references specified, but an element is not a string. Config will be ignored.", a_path, friendlyName.asString());
 				return;
 			}
+			auto parts = Utilities::String::split(identifier.asString(), "|");
+			if (parts.size() != 2) {
+				logger::warn("Config <{}>/[{}] has a malformed reference string."sv, a_path, friendlyName.asString());
+				continue;
+			}
+			if (Utilities::String::is_only_hex(parts.at(0))) {
+				logger::warn("Config <{}>/[{}] has a non-hex FormID."sv, a_path, friendlyName.asString());
+				continue;
+			}
 
-			const auto id = Utilities::String::to_num<RE::FormID>(identifier.asString(), true);
-			forms.push_back(id);
+			auto form = Utilities::Forms::GetFormFromString<RE::TESObjectREFR>(identifier.asString());
+			if (!form) {
+				continue;
+			}
+			forms.push_back(form->GetFormID());
 		}
 
 		Conditions::ReferenceCondition newCondition{ forms };
@@ -394,13 +406,9 @@ namespace Settings::JSON
 						logger::warn("Config <{}>/[{}] has onlyVendors specified, but it is not a bool value. Config will be ignored.", a_path, friendlyName.asString());
 						return;
 					}
-
-					if (!distributeToVendors && vendorsOnlyField.asBool()) {
+					if (vendorsOnlyField.asBool()) {
 						distributeToVendors = true;
-						onlyVendors = true;
-					}
-					else if (vendorsOnlyField.asBool()) {
-						onlyVendors = true;
+						onlyVendors;
 					}
 				}
 
