@@ -24,7 +24,7 @@ namespace Conditions
 		logger::info("|  Reference Conditions /");
 		logger::info("=======================/");
 		for (const auto& form : validReferences) {
-			logger::info("  ->{}{}", inverted ? "Not " : "", form);
+			logger::info("  ->{}{:08X}", inverted ? "Not " : "", form);
 		}
 		logger::info("");
 	}

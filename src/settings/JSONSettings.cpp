@@ -284,13 +284,14 @@ namespace {
 				logger::warn("Config <{}>/[{}] has a malformed reference string."sv, a_path, friendlyName.asString());
 				continue;
 			}
-			if (Utilities::String::is_only_hex(parts.at(0))) {
+			if (!Utilities::String::is_only_hex(parts.at(0))) {
 				logger::warn("Config <{}>/[{}] has a non-hex FormID."sv, a_path, friendlyName.asString());
 				continue;
 			}
 
 			auto form = Utilities::Forms::GetFormFromString<RE::TESObjectREFR>(identifier.asString());
 			if (!form) {
+				logger::warn("Failed to resolve {}|{}"sv, parts.at(0), parts.at(1));
 				continue;
 			}
 			forms.push_back(form->GetFormID());
