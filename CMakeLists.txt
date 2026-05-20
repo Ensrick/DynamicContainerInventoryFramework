@@ -5,7 +5,7 @@ option(BUILD_TEST "Sets log level to debug." OFF)
 # -------- Project ----------
 project(
 	ContainerDistributionFramework
-	VERSION 3.0.2
+	VERSION 3.1.0
 	LANGUAGES CXX
 )
 
