@@ -6,6 +6,7 @@
   "license": "Apache-2.0",
   "dependencies": [
     "clib-util",
+    "commonlib-shared",
     "fmt",
     "rsm-binary-io",
     "spdlog",

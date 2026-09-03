@@ -39,7 +39,7 @@ jobs:
         cache-name: vcpkg-cache
       with:
         path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}/*
-        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('main/**/vcpkg.json', 'vcpkg-version.txt') }}
+        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/vcpkg.json', 'vcpkg-version.txt') }}
 
     - name: Configure CMake
       run: |
