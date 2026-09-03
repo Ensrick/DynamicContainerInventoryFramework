@@ -409,7 +409,7 @@ namespace Settings::JSON
 					}
 					if (vendorsOnlyField.asBool()) {
 						distributeToVendors = true;
-						onlyVendors;
+						onlyVendors = true;
 					}
 				}
 
