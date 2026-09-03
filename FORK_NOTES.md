@@ -23,4 +23,7 @@ The upstream project pins SeaSparrowOG/CommonLibSSE at `1baab74e`, from
 February 2026. That revision predates Skyrim 1.7.104 and Address Library format
 5. This fork advances the existing CommonLibSSE submodule to
 `d27f40968783bfd7b371e4fe17ec239c60661974` (2026-08-31), preserving the
-project's CommonLib lineage while adding the current runtime's loader support.
+project’s CommonLib lineage while adding the current runtime's loader support.
+The local `commonlib-shared` overlay also removes its native MessageBox calls:
+fatal errors remain logged and terminate cleanly without interrupting the
+desktop with a modal dialog.
