@@ -56,6 +56,10 @@ target_include_directories(
 		${CLIB_UTIL_INCLUDE_DIRS}
 )
 
+if(MSVC)
+	target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX)
+endif()
+
 set(DATA_DIR "${PROJECT_SOURCE_DIR}/data")
 
 install(
