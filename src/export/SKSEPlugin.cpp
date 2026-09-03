@@ -9,7 +9,7 @@ namespace
 	{
 		auto path = logger::log_directory();
 		if (!path) {
-			util::report_and_fail("Failed to find standard logging directory"sv);
+			REX::FAIL("Failed to find standard logging directory");
 		}
 
 		*path /= fmt::format("{}.log"sv, Plugin::NAME);
@@ -85,8 +85,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 	logger::info("{} v{}"sv, Plugin::NAME, Plugin::VERSION.string());
 	logger::info("Author: SeaSparrow");
 	logger::info("=================================================");
-	SKSE::Init(a_skse);
-	SKSE::AllocTrampoline(28);
+	SKSE::Init(a_skse, { .log = false, .trampoline = true, .trampolineSize = 28 });
 
 	const auto ver = a_skse->RuntimeVersion();
 	if (ver < SKSE::RUNTIME_SSE_1_6_1130) {
