@@ -4,8 +4,20 @@
 #include "utilities/utilities.h"
 #include "RE/offset.h"
 
+#include <limits>
+
 namespace {
-	void ResolveLeveledList(RE::TESLeveledList* a_levItem, RE::BSScrapArray<RE::CALCED_OBJECT>* a_result, uint32_t a_count) {
+	std::int16_t ToLeveledListCount(std::uint32_t a_count)
+	{
+		constexpr auto maxCount = static_cast<std::uint32_t>(std::numeric_limits<std::int16_t>::max());
+		if (a_count > maxCount) {
+			logger::warn("Leveled-list count {} exceeds the engine limit; clamping to {}", a_count, maxCount);
+			return std::numeric_limits<std::int16_t>::max();
+		}
+		return static_cast<std::int16_t>(a_count);
+	}
+
+	void ResolveLeveledList(RE::TESLeveledList* a_levItem, RE::BSScrapArray<RE::CALCED_OBJECT>* a_result, std::int16_t a_count) {
 		RE::BSScrapArray<RE::CALCED_OBJECT> temp{};
 		a_levItem->CalculateCurrentFormList(RE::PlayerCharacter::GetSingleton()->GetLevel(), a_count, temp, 0, true);
 
@@ -13,7 +25,7 @@ namespace {
 			auto* form = it.form;
 			auto* leveledForm = form->As<RE::TESLeveledList>();
 			if (leveledForm) {
-				ResolveLeveledList(leveledForm, a_result, it.count);
+				ResolveLeveledList(leveledForm, a_result, ToLeveledListCount(it.count));
 			}
 			else {
 				a_result->push_back(it);
@@ -23,7 +35,7 @@ namespace {
 
 	void AddLeveledListToContainer(RE::TESLeveledList * list, RE::TESObjectREFR * a_container, uint32_t a_count) {
 		RE::BSScrapArray<RE::CALCED_OBJECT> result{};
-		ResolveLeveledList(list, &result, a_count);
+		ResolveLeveledList(list, &result, ToLeveledListCount(a_count));
 		if (result.size() < 1) return;
 
 		for (auto& obj : result) {
