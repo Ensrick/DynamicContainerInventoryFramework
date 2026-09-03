@@ -5,6 +5,7 @@
 
 #include <fstream>
 #include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/spdlog.h>
 
 #include <json/json.h>
 
@@ -12,20 +13,25 @@
 
 #define DLLEXPORT __declspec(dllexport)
 
-namespace logger = SKSE::log;
-using namespace std::literals;
-namespace util
+// Current commonlib-shared retains SKSE::log::log_directory(), but logging
+// functions are provided directly by spdlog. Keep existing logger:: call sites
+// while making that split explicit.
+namespace logger
 {
-    using SKSE::stl::report_and_fail;
+    using spdlog::critical;
+    using spdlog::debug;
+    using spdlog::error;
+    using spdlog::info;
+    using spdlog::warn;
+    using SKSE::log::log_directory;
 }
+using namespace std::literals;
 
 namespace stl {
     template <class T>
     void write_thunk_call(std::uintptr_t a_src)
     {
-        SKSE::AllocTrampoline(14);
-
-        auto& trampoline = SKSE::GetTrampoline();
+        auto& trampoline = REL::GetTrampoline();
         T::func = trampoline.write_call<5>(a_src, T::thunk);
     }
 

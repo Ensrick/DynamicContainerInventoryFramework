@@ -3,6 +3,8 @@ name: Build
 on:
   push:
     branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
   workflow_dispatch:
 
 env:
@@ -19,6 +21,10 @@ jobs:
       with:
         submodules: recursive
 
+    - name: Verify vendor-only parsing regression
+      shell: pwsh
+      run: ./tests/only-vendors-regression.ps1
+
     - name: Setup vcpkg
       run: |
         mkdir -p ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
@@ -33,7 +39,7 @@ jobs:
         cache-name: vcpkg-cache
       with:
         path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}/*
-        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('main/**/vcpkg.json', 'vcpkg-version.txt') }}
+        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/vcpkg.json', 'vcpkg-version.txt') }}
 
     - name: Configure CMake
       run: |

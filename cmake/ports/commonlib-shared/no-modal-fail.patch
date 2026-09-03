@@ -1,0 +1,26 @@
+diff --git a/src/REX/LOG.cpp b/src/REX/LOG.cpp
+index 48a420a..6631805 100644
+--- a/src/REX/LOG.cpp
++++ b/src/REX/LOG.cpp
+@@ -114,7 +114,9 @@ namespace REX::Impl
+ 		}();
+ 
+ 		Log(a_loc, ELogLevel::Critical, a_fmt);
+-		REX::W32::MessageBoxA(nullptr, body.c_str(), (caption.empty() ? nullptr : caption.c_str()), 0);
++		// Ensrick no-modal build: the failure is already in the log; a modal box hangs unattended launches.
++		(void)body;
++		(void)caption;
+ 		REX::W32::TerminateProcess(REX::W32::GetCurrentProcess(), 1);
+ 	}
+ 
+@@ -170,7 +172,9 @@ namespace REX::Impl
+ 		}();
+ 
+ 		Log(a_loc, ELogLevel::Critical, a_fmt);
+-		REX::W32::MessageBoxW(nullptr, body.c_str(), (caption.empty() ? nullptr : caption.c_str()), 0);
++		// Ensrick no-modal build: the failure is already in the log; a modal box hangs unattended launches.
++		(void)body;
++		(void)caption;
+ 		REX::W32::TerminateProcess(REX::W32::GetCurrentProcess(), 1);
+ 	}
+ }
