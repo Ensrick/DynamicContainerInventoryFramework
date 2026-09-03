@@ -1,9 +1,9 @@
 {
   "name": "container-distribution-framework",
-  "version-string": "3.0.0",
+  "version-string": "3.1.0",
   "description": "DLL that allows for dynamic coin addition to containers based on conditions for SkyrimSE. ",
   "homepage": "",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "dependencies": [
     "clib-util",
     "fmt",

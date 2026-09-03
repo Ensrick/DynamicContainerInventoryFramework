@@ -16,3 +16,11 @@ vendor-only rule is allowed to touch vendor containers.
 
 `tests/only-vendors-regression.ps1` guards both sides of the regression: the
 assignment must exist and the former no-op statement must not return.
+
+## Skyrim 1.7.104 runtime support
+
+The upstream project pins SeaSparrowOG/CommonLibSSE at `1baab74e`, from
+February 2026. That revision predates Skyrim 1.7.104 and Address Library format
+5. This fork advances the existing CommonLibSSE submodule to
+`d27f40968783bfd7b371e4fe17ec239c60661974` (2026-08-31), preserving the
+project's CommonLib lineage while adding the current runtime's loader support.
