@@ -34,6 +34,8 @@ namespace Hooks {
 
 			bool PreCheck(RE::TESObjectREFR* a_container);
 			void LogSkippedNonPositiveCount(RE::TESObjectREFR* a_container, RE::TESForm* a_source, std::int32_t a_count) const;
+			void LogRejectedPositiveCount(RE::TESObjectREFR* a_container, RE::TESForm* a_source, RE::TESForm* a_target,
+				std::uint64_t a_count, std::uint64_t a_limit, std::string_view a_operation) const;
 			void PrintContext() const;
 			virtual void Apply(RE::TESObjectREFR* a_container) = 0;
 			virtual void Print() = 0;

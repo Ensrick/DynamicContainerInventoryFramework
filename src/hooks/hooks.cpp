@@ -99,19 +99,20 @@ namespace {
 		for (auto& obj : result) {
 			auto* thingToAdd = static_cast<RE::TESBoundObject*>(obj.form);
 			if (!thingToAdd) continue;
-			a_container->AddObjectToContainer(thingToAdd, nullptr, obj.count, nullptr);
-		}
-	}
-
-	void AddObjectCountToContainer(RE::TESBoundObject* a_object, RE::TESObjectREFR* a_container, std::uint32_t a_count)
-	{
-		constexpr auto maxEngineCount = static_cast<std::uint32_t>(std::numeric_limits<std::int32_t>::max());
-		while (a_count > maxEngineCount) {
-			a_container->AddObjectToContainer(a_object, nullptr, std::numeric_limits<std::int32_t>::max(), nullptr);
-			a_count -= maxEngineCount;
-		}
-		if (a_count > 0) {
-			a_container->AddObjectToContainer(a_object, nullptr, static_cast<std::int32_t>(a_count), nullptr);
+			const auto directCount = Hooks::CountSafety::NormalizeDirectObjectCount(obj.count);
+			if (directCount.action == Hooks::CountSafety::DirectObjectCountAction::kSkip) {
+				logger::debug(
+					"Config <{}>/[{}] skipped zero calculated-object count "
+					"(container 0x{:08X}, base 0x{:08X}, source 0x{:08X}, target 0x{:08X})",
+					a_context.configPath,
+					a_context.friendlyName,
+					GetFormID(a_context.container),
+					GetFormID(a_context.container ? a_context.container->GetBaseObject() : nullptr),
+					GetFormID(a_context.source),
+					GetFormID(obj.form));
+				continue;
+			}
+			a_container->AddObjectToContainer(thingToAdd, nullptr, directCount.value, nullptr);
 		}
 	}
 }
@@ -380,6 +381,10 @@ namespace Hooks {
 		const auto count = ruleCount;
 		const auto logContext = RuleLogContext{ configPath, friendlyName, a_container, nullptr };
 		if (randomAdd) {
+			if (!CountSafety::IsRandomAddCountWithinLimit(count)) {
+				LogRejectedPositiveCount(a_container, nullptr, nullptr, count, CountSafety::kMaxRandomAddCount, "random-add");
+				return;
+			}
 			size_t upper = newForms.size() - 1;
 			for (auto i = (size_t)0; i < count; ++i) {
 				const auto index = clib_util::RNG().generate((size_t)0, upper);
@@ -398,7 +403,20 @@ namespace Hooks {
 					AddLeveledListToContainer(leveledList, a_container, count, logContext, baseObj);
 				}
 				else {
-					AddObjectCountToContainer(baseObj, a_container, count);
+					const auto directCount = CountSafety::NormalizeDirectObjectCount(count);
+					if (directCount.action == CountSafety::DirectObjectCountAction::kSkip) {
+						if (count > 0) {
+							LogRejectedPositiveCount(
+								a_container,
+								nullptr,
+								baseObj,
+								count,
+								std::numeric_limits<std::int32_t>::max(),
+								"direct add");
+						}
+						continue;
+					}
+					a_container->AddObjectToContainer(baseObj, nullptr, directCount.value, nullptr);
 				}
 			}
 		}
@@ -476,6 +494,10 @@ namespace Hooks {
 		}
 
 		const auto logContext = RuleLogContext{ configPath, friendlyName, a_container, oldForm };
+		if (randomAdd && !CountSafety::IsRandomAddCountWithinLimit(count)) {
+			LogRejectedPositiveCount(a_container, oldForm, nullptr, count, CountSafety::kMaxRandomAddCount, "random replacement");
+			return;
+		}
 		a_container->RemoveItem(oldForm, count, RE::ITEM_REMOVE_REASON::kRemove, nullptr, nullptr);
 		if (randomAdd) {
 			size_t upper = newForms.size() - 1;
@@ -549,6 +571,28 @@ namespace Hooks {
 				baseID,
 				sourceID);
 		}
+	}
+
+	void ContainerManager::Rule::LogRejectedPositiveCount(
+		RE::TESObjectREFR* a_container,
+		RE::TESForm* a_source,
+		RE::TESForm* a_target,
+		std::uint64_t a_count,
+		std::uint64_t a_limit,
+		std::string_view a_operation) const
+	{
+		logger::warn(
+			"Config <{}>/[{}] rejected {} count {}; operational limit is {} "
+			"(container 0x{:08X}, base 0x{:08X}, source 0x{:08X}, target 0x{:08X})",
+			configPath,
+			friendlyName,
+			a_operation,
+			a_count,
+			a_limit,
+			GetFormID(a_container),
+			GetFormID(a_container ? a_container->GetBaseObject() : nullptr),
+			GetFormID(a_source),
+			GetFormID(a_target));
 	}
 
 	void ContainerManager::Rule::PrintContext() const
@@ -702,15 +746,46 @@ namespace Hooks {
 		if (removals.empty()) {
 			return;
 		}
-		if (count.saturated) {
-			logger::warn(
-				"Config <{}>/[{}] positive keyword-replacement total exceeded {}; saturating "
-				"(container 0x{:08X}, base 0x{:08X})",
-				configPath,
-				friendlyName,
-				std::numeric_limits<std::uint32_t>::max(),
-				GetFormID(a_container),
-				GetFormID(a_container->GetBaseObject()));
+		if (count.overflowed) {
+			LogRejectedPositiveCount(
+				a_container,
+				nullptr,
+				nullptr,
+				count.value,
+				std::numeric_limits<std::uint64_t>::max(),
+				"overflowed keyword-replacement aggregate");
+			return;
+		}
+		if (randomAdd && !CountSafety::IsRandomAddCountWithinLimit(count.value)) {
+			LogRejectedPositiveCount(
+				a_container,
+				nullptr,
+				nullptr,
+				count.value,
+				CountSafety::kMaxRandomAddCount,
+				"random keyword replacement");
+			return;
+		}
+
+		RE::TESBoundObject* directTarget = nullptr;
+		if (!randomAdd) {
+			for (const auto baseObj : newForms) {
+				if (!baseObj->As<RE::TESLeveledList>()) {
+					directTarget = baseObj;
+					break;
+				}
+			}
+		}
+		const auto directCount = CountSafety::NormalizeDirectObjectCount(count.value);
+		if (directTarget && directCount.action == CountSafety::DirectObjectCountAction::kSkip) {
+			LogRejectedPositiveCount(
+				a_container,
+				nullptr,
+				directTarget,
+				count.value,
+				std::numeric_limits<std::int32_t>::max(),
+				"direct keyword replacement");
+			return;
 		}
 
 		for (const auto& pair : removals) {
@@ -737,7 +812,7 @@ namespace Hooks {
 					AddLeveledListToContainer(leveledList, a_container, count.value, logContext, baseObj);
 				}
 				else {
-					AddObjectCountToContainer(baseObj, a_container, count.value);
+					a_container->AddObjectToContainer(baseObj, nullptr, directCount.value, nullptr);
 				}
 			}
 		}

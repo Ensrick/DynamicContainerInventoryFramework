@@ -39,14 +39,16 @@ engine's signed 16-bit leveled-list API.
 
 This fork now rejects nonpositive inventory counts before removal,
 replacement, or random-add iteration. Keyword rules retain signed per-entry
-counts, ignore nonpositive entries, and use saturating aggregation rather than
-unsigned wrap. Genuine positive leveled-list requests preserve the existing
-behavior: values through 32,767 are exact and larger values clamp to 32,767.
-Direct positive additions are split at the engine's signed 32-bit boundary so
-their total is preserved.
+counts, ignore nonpositive entries, and aggregate in checked 64-bit arithmetic
+rather than wrapping. Genuine positive leveled-list requests preserve the
+existing behavior: values through 32,767 are exact and larger values clamp to
+32,767. Random-add rules fail closed above 32,767 iterations, and direct adds
+fail closed above the engine's signed 32-bit limit; both checks occur before a
+replacement removes source items. Zero-count calculated objects are ignored.
 
 Runtime diagnostics include the JSON path, friendly rule name, container and
 base FormIDs, and source/target FormIDs where available. The standalone
 `count-safety` CTest covers `-16`, `-15`, `0`, `1`, `32767`, `32768`, aggregate
-overflow, and the owned C.O.I.N. `DE5012 -> DE5016` regression seam. See
+overflow, direct-add and random-add operational limits, and the owned C.O.I.N.
+`DE5012 -> DE5016` regression seam. See
 [Ensrick/skyrim-mod-assistant#230](https://github.com/Ensrick/skyrim-mod-assistant/issues/230).

@@ -6,6 +6,7 @@
 namespace
 {
 	using Hooks::CountSafety::InventoryCountTotal;
+	using Hooks::CountSafety::DirectObjectCountAction;
 	using Hooks::CountSafety::LeveledListCountAction;
 
 	constexpr bool HasAction(std::int32_t a_count, LeveledListCountAction a_action, std::int16_t a_value)
@@ -46,22 +47,49 @@ namespace
 		total = Hooks::CountSafety::AddPositiveInventoryCount(total, 0);
 		total = Hooks::CountSafety::AddPositiveInventoryCount(total, 1);
 		total = Hooks::CountSafety::AddPositiveInventoryCount(total, 32767);
-		if (total.value != 32768 || total.saturated) {
+		if (total.value != 32768 || total.overflowed) {
 			return false;
 		}
 
 		total = Hooks::CountSafety::AddPositiveInventoryCount(
-			{ std::numeric_limits<std::uint32_t>::max() - 1, false },
+			{ std::numeric_limits<std::uint32_t>::max() - 1ULL, false },
 			2);
-		return total.value == std::numeric_limits<std::uint32_t>::max() && total.saturated;
+		if (total.value != static_cast<std::uint64_t>(std::numeric_limits<std::uint32_t>::max()) + 1 || total.overflowed) {
+			return false;
+		}
+
+		total = Hooks::CountSafety::AddPositiveInventoryCount(
+			{ std::numeric_limits<std::uint64_t>::max() - 1, false },
+			2);
+		return total.value == std::numeric_limits<std::uint64_t>::max() && total.overflowed;
+	}
+
+	constexpr bool OperationalBoundariesPass()
+	{
+		const auto zeroDirect = Hooks::CountSafety::NormalizeDirectObjectCount(0);
+		const auto maxDirect = Hooks::CountSafety::NormalizeDirectObjectCount(std::numeric_limits<std::int32_t>::max());
+		const auto tooLargeDirect = Hooks::CountSafety::NormalizeDirectObjectCount(
+			static_cast<std::uint64_t>(std::numeric_limits<std::int32_t>::max()) + 1);
+		const auto uint32MaxDirect = Hooks::CountSafety::NormalizeDirectObjectCount(
+			std::numeric_limits<std::uint32_t>::max());
+
+		return zeroDirect.action == DirectObjectCountAction::kSkip &&
+		       maxDirect.action == DirectObjectCountAction::kUse &&
+		       maxDirect.value == std::numeric_limits<std::int32_t>::max() &&
+		       tooLargeDirect.action == DirectObjectCountAction::kSkip &&
+		       uint32MaxDirect.action == DirectObjectCountAction::kSkip &&
+		       Hooks::CountSafety::IsRandomAddCountWithinLimit(32767) &&
+		       !Hooks::CountSafety::IsRandomAddCountWithinLimit(32768) &&
+		       !Hooks::CountSafety::IsRandomAddCountWithinLimit(std::numeric_limits<std::uint32_t>::max());
 	}
 
 	static_assert(BoundaryCasesPass());
 	static_assert(DrakrRegressionPasses());
 	static_assert(KeywordAggregationPasses());
+	static_assert(OperationalBoundariesPass());
 }
 
 int main()
 {
-	return BoundaryCasesPass() && DrakrRegressionPasses() && KeywordAggregationPasses() ? 0 : 1;
+	return BoundaryCasesPass() && DrakrRegressionPasses() && KeywordAggregationPasses() && OperationalBoundariesPass() ? 0 : 1;
 }
