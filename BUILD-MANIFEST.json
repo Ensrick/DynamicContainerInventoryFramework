@@ -5,7 +5,7 @@
   "upstream": "https://github.com/SeaSparrowOG/DynamicContainerInventoryFramework",
   "upstreamBaseCommit": "38ca39282e24ed8f7f8423f106d0a660689673c6",
   "forkBaseCommit": "90924c21a19b4d17a7325c53ac8eff461773ba5f",
-  "sourceCommit": "cb66bb3bb1f8485341530c797dc7213fe81abe56",
+  "sourceCommit": "78fdfd9be3daf8eecbd50dc0b90c8ae6c9dd2d80",
   "branch": "ensrick/fix-nonpositive-inventory-counts",
   "pullRequest": "https://github.com/Ensrick/DynamicContainerInventoryFramework/pull/2",
   "issue": "https://github.com/Ensrick/skyrim-mod-assistant/issues/230",
@@ -13,30 +13,30 @@
   "runtime": "Skyrim 1.7.104 / SKSE 2.3.1 / Address Library format 5",
   "commonLibCommit": "d27f40968783bfd7b371e4fe17ec239c60661974",
   "canonicalBuild": {
-    "runId": 33918871294,
-    "url": "https://github.com/Ensrick/DynamicContainerInventoryFramework/actions/runs/33918871294",
+    "runId": 33920959352,
+    "url": "https://github.com/Ensrick/DynamicContainerInventoryFramework/actions/runs/33920959352",
     "result": "success",
-    "artifactId": 9954281138,
+    "artifactId": 9955063110,
     "artifactName": "CDF",
-    "artifactDigest": "sha256:6ae7a190a35e220b645cdaa1495872b1a2f1b5e32c895616f19156967dea0770"
+    "artifactDigest": "sha256:049a433b67e10eb61a3764340b1f1989dbb4d52b10afc0a17e34ad48135fa419"
   },
   "files": [
     {
       "path": "SKSE/Plugins/ContainerDistributionFramework.dll",
-      "bytes": 1129984,
-      "sha256": "DEA3BE72CEE98594561BF80B39C7E74BCFB55BB121F27A44B5EE3B2D2F40DC14"
+      "bytes": 1132544,
+      "sha256": "69F3CA642F902ABD321B5A526D41A7827E7120757BD3D35D5ABFA74C837A7F5D"
     },
     {
       "path": "SKSE/Plugins/ContainerDistributionFramework.pdb",
-      "bytes": 26038272,
-      "sha256": "78A57E6241331173B4998A63A903A07EC0E967A2E9028C46C7675CDEB202FC85"
+      "bytes": 29036544,
+      "sha256": "526E2199953F7CB77B5C23D96E3F68C77D4591D5ECB84E30C6CE988B16731160"
     }
   ],
   "verification": [
     "GitHub Actions Windows Release build passed with warnings treated as errors.",
-    "CTest count-safety passed for -16, -15, 0, 1, 32767, and 32768.",
+    "CTest count-safety passed for -16, -15, 0, 1, 32767, 32768, and UINT32_MAX boundaries.",
     "The DE5012 to DE5016 negative-delta regression seam passed.",
-    "Keyword aggregation saturation and the existing onlyVendors regression passed.",
+    "Checked 64-bit keyword aggregation, direct-add and random-add safety limits, and the existing onlyVendors regression passed.",
     "No files were installed into the live MO2 profile and Skyrim was not launched."
   ],
   "runtimeAcceptancePending": [
