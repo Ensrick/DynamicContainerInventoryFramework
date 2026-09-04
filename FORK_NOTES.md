@@ -27,3 +27,26 @@ project’s CommonLib lineage while adding the current runtime's loader support.
 The local `commonlib-shared` overlay also removes its native MessageBox calls:
 fatal errors remain logged and terminate cleanly without interrupting the
 desktop with a modal dialog.
+
+## Signed inventory-count safety
+
+`TESObjectREFR::GetInventory()` can retain zero and negative signed
+`countDelta` entries for depleted inventory. The upstream rules treated map
+membership as proof that an item had a positive count. In a replacement with a
+leveled-list target, `-15` and `-16` consequently crossed an unsigned boundary
+as `4294967281` and `4294967280`, then became requests for 32,767 items at the
+engine's signed 16-bit leveled-list API.
+
+This fork now rejects nonpositive inventory counts before removal,
+replacement, or random-add iteration. Keyword rules retain signed per-entry
+counts, ignore nonpositive entries, and use saturating aggregation rather than
+unsigned wrap. Genuine positive leveled-list requests preserve the existing
+behavior: values through 32,767 are exact and larger values clamp to 32,767.
+Direct positive additions are split at the engine's signed 32-bit boundary so
+their total is preserved.
+
+Runtime diagnostics include the JSON path, friendly rule name, container and
+base FormIDs, and source/target FormIDs where available. The standalone
+`count-safety` CTest covers `-16`, `-15`, `0`, `1`, `32767`, `32768`, aggregate
+overflow, and the owned C.O.I.N. `DE5012 -> DE5016` regression seam. See
+[Ensrick/skyrim-mod-assistant#230](https://github.com/Ensrick/skyrim-mod-assistant/issues/230).

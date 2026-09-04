@@ -689,7 +689,15 @@ namespace Settings::JSON
 						continue;
 					}
 				}
-				Hooks::ContainerManager::GetSingleton()->RegisterRule(change, targets, bypassUnsafeContainers, distributeToVendors, onlyVendors, randomAdd);
+				Hooks::ContainerManager::GetSingleton()->RegisterRule(
+					change,
+					targets,
+					bypassUnsafeContainers,
+					distributeToVendors,
+					onlyVendors,
+					randomAdd,
+					a_path,
+					friendlyName.asString());
 			}
 		}
 	}

@@ -56,6 +56,18 @@ target_include_directories(
 		${CLIB_UTIL_INCLUDE_DIRS}
 )
 
+include(CTest)
+if(BUILD_TESTING)
+	add_executable(count-safety-tests tests/count-safety-tests.cpp)
+	target_compile_features(count-safety-tests PRIVATE cxx_std_20)
+	target_include_directories(count-safety-tests PRIVATE "${PROJECT_SOURCE_DIR}/src")
+	add_test(NAME count-safety COMMAND count-safety-tests)
+
+	if(MSVC)
+		target_compile_options(count-safety-tests PRIVATE /W4 /WX)
+	endif()
+endif()
+
 if(MSVC)
 	target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX)
 endif()
