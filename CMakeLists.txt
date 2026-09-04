@@ -56,8 +56,24 @@ target_include_directories(
 		${CLIB_UTIL_INCLUDE_DIRS}
 )
 
+include(CTest)
+if(BUILD_TESTING)
+	add_executable(count-safety-tests tests/count-safety-tests.cpp)
+	target_compile_features(count-safety-tests PRIVATE cxx_std_20)
+	target_include_directories(count-safety-tests PRIVATE "${PROJECT_SOURCE_DIR}/src")
+	add_test(NAME count-safety COMMAND count-safety-tests)
+
+	if(MSVC)
+		target_compile_options(count-safety-tests PRIVATE /W4 /WX "$<$<CONFIG:Release>:/Z7>" "$<$<CONFIG:Release>:/Brepro>")
+		target_link_options(count-safety-tests PRIVATE "$<$<CONFIG:Release>:/Brepro>")
+	endif()
+endif()
+
 if(MSVC)
-	target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX)
+	target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX "$<$<CONFIG:Release>:/Z7>" "$<$<CONFIG:Release>:/Brepro>")
+	target_link_options(${PROJECT_NAME} PRIVATE "$<$<CONFIG:Release>:/Brepro>")
+	target_compile_options(CommonLibSSE PRIVATE "$<$<CONFIG:Release>:/Z7>" "$<$<CONFIG:Release>:/Brepro>")
+	set_property(TARGET CommonLibSSE APPEND PROPERTY STATIC_LIBRARY_OPTIONS "$<$<CONFIG:Release>:/Brepro>")
 endif()
 
 set(DATA_DIR "${PROJECT_SOURCE_DIR}/data")
@@ -65,6 +81,21 @@ set(DATA_DIR "${PROJECT_SOURCE_DIR}/data")
 install(
 	FILES "${DATA_DIR}/SKSE/Plugins/replaceme.ini"
 	DESTINATION "SKSE/Plugins"
+)
+
+install(
+	FILES "${PROJECT_SOURCE_DIR}/LICENSE"
+	DESTINATION "."
+	RENAME "LICENSE-Apache-2.0.txt"
+	COMPONENT "SKSEPlugin"
+)
+
+install(
+	FILES
+		"${PROJECT_SOURCE_DIR}/SOURCE-NOTICE.txt"
+		"${PROJECT_SOURCE_DIR}/BUILD-MANIFEST.json"
+	DESTINATION "."
+	COMPONENT "SKSEPlugin"
 )
 
 include(components.cmake)

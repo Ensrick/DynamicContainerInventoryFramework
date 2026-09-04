@@ -14,7 +14,8 @@ namespace Hooks {
 
 		RE::BGSLocation* GetNearestMarkerLocation(RE::TESObjectREFR* a_container);
 		void RegisterDistance(float a_newDistance);
-		void RegisterRule(Json::Value& raw, std::vector<size_t> a_conditions, bool a_safe, bool a_vendors, bool a_onlyVendors, bool a_random);
+		void RegisterRule(Json::Value& raw, std::vector<size_t> a_conditions, bool a_safe, bool a_vendors, bool a_onlyVendors, bool a_random,
+			const std::string& a_configPath, const std::string& a_friendlyName);
 		void WarmCache();
 		void PrettyPrint();
 
@@ -22,6 +23,8 @@ namespace Hooks {
 	private:
 		struct Rule {
 			std::vector<size_t> conditions;
+			std::string configPath;
+			std::string friendlyName;
 
 			bool allowVendors;
 			bool onlyVendors;
@@ -30,6 +33,10 @@ namespace Hooks {
 			uint32_t ruleCount;
 
 			bool PreCheck(RE::TESObjectREFR* a_container);
+			void LogSkippedNonPositiveCount(RE::TESObjectREFR* a_container, RE::TESForm* a_source, std::int32_t a_count) const;
+			void LogRejectedPositiveCount(RE::TESObjectREFR* a_container, RE::TESForm* a_source, RE::TESForm* a_target,
+				std::uint64_t a_count, std::uint64_t a_limit, std::string_view a_operation) const;
+			void PrintContext() const;
 			virtual void Apply(RE::TESObjectREFR* a_container) = 0;
 			virtual void Print() = 0;
 		};
