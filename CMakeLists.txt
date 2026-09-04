@@ -79,6 +79,21 @@ install(
 	DESTINATION "SKSE/Plugins"
 )
 
+install(
+	FILES "${PROJECT_SOURCE_DIR}/LICENSE"
+	DESTINATION "."
+	RENAME "LICENSE-Apache-2.0.txt"
+	COMPONENT "SKSEPlugin"
+)
+
+install(
+	FILES
+		"${PROJECT_SOURCE_DIR}/SOURCE-NOTICE.txt"
+		"${PROJECT_SOURCE_DIR}/BUILD-MANIFEST.json"
+	DESTINATION "."
+	COMPONENT "SKSEPlugin"
+)
+
 include(components.cmake)
 
 # ---- Post build ----

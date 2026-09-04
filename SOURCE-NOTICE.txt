@@ -1,0 +1,28 @@
+Container Distribution Framework 3.1.0 - Skyrim 1.7.104 safety overlay
+
+Upstream: https://github.com/SeaSparrowOG/DynamicContainerInventoryFramework
+Fork: https://github.com/Ensrick/DynamicContainerInventoryFramework
+Upstream base: 38ca39282e24ed8f7f8423f106d0a660689673c6
+Fork base: 90924c21a19b4d17a7325c53ac8eff461773ba5f
+Binary source commit: cb66bb3bb1f8485341530c797dc7213fe81abe56
+Build PR: https://github.com/Ensrick/DynamicContainerInventoryFramework/pull/2
+Issue: https://github.com/Ensrick/skyrim-mod-assistant/issues/230
+License: Apache License 2.0 (see LICENSE-Apache-2.0.txt)
+
+This binary is modified from upstream. In addition to the fork's Skyrim
+1.7.104 / SKSE 2.3.1 / Address Library format 5 support and vendor-only rule
+fix, this revision rejects nonpositive signed inventory deltas before any
+removal, replacement, leveled-list resolution, or random-add iteration.
+Keyword rules retain signed per-entry counts and saturate their positive total
+instead of wrapping. Positive leveled-list counts remain exact through 32,767
+and clamp above the engine's signed 16-bit limit.
+
+Count diagnostics now identify the JSON path, friendly rule name, container
+and base FormIDs, plus source and target FormIDs where available. Focused tests
+cover -16, -15, 0, 1, 32767, 32768, aggregate overflow, and the owned C.O.I.N.
+DE5012 -> DE5016 regression seam.
+
+The distribution contains the rebuilt DLL, debugging symbols, build manifest,
+this source notice, and the Apache-2.0 license. It intentionally contains no
+INI or JSON runtime configuration; the official CDF package remains
+authoritative for those files.

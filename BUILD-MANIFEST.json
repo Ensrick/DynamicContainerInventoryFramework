@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "name": "Container Distribution Framework 3.1.0 - Skyrim 1.7.104 safety overlay",
+  "repository": "https://github.com/Ensrick/DynamicContainerInventoryFramework",
+  "upstream": "https://github.com/SeaSparrowOG/DynamicContainerInventoryFramework",
+  "upstreamBaseCommit": "38ca39282e24ed8f7f8423f106d0a660689673c6",
+  "forkBaseCommit": "90924c21a19b4d17a7325c53ac8eff461773ba5f",
+  "sourceCommit": "cb66bb3bb1f8485341530c797dc7213fe81abe56",
+  "branch": "ensrick/fix-nonpositive-inventory-counts",
+  "pullRequest": "https://github.com/Ensrick/DynamicContainerInventoryFramework/pull/2",
+  "issue": "https://github.com/Ensrick/skyrim-mod-assistant/issues/230",
+  "license": "Apache-2.0",
+  "runtime": "Skyrim 1.7.104 / SKSE 2.3.1 / Address Library format 5",
+  "commonLibCommit": "d27f40968783bfd7b371e4fe17ec239c60661974",
+  "canonicalBuild": {
+    "runId": 33918871294,
+    "url": "https://github.com/Ensrick/DynamicContainerInventoryFramework/actions/runs/33918871294",
+    "result": "success",
+    "artifactId": 9954281138,
+    "artifactName": "CDF",
+    "artifactDigest": "sha256:6ae7a190a35e220b645cdaa1495872b1a2f1b5e32c895616f19156967dea0770"
+  },
+  "files": [
+    {
+      "path": "SKSE/Plugins/ContainerDistributionFramework.dll",
+      "bytes": 1129984,
+      "sha256": "DEA3BE72CEE98594561BF80B39C7E74BCFB55BB121F27A44B5EE3B2D2F40DC14"
+    },
+    {
+      "path": "SKSE/Plugins/ContainerDistributionFramework.pdb",
+      "bytes": 26038272,
+      "sha256": "78A57E6241331173B4998A63A903A07EC0E967A2E9028C46C7675CDEB202FC85"
+    }
+  ],
+  "verification": [
+    "GitHub Actions Windows Release build passed with warnings treated as errors.",
+    "CTest count-safety passed for -16, -15, 0, 1, 32767, and 32768.",
+    "The DE5012 to DE5016 negative-delta regression seam passed.",
+    "Keyword aggregation saturation and the existing onlyVendors regression passed.",
+    "No files were installed into the live MO2 profile and Skyrim was not launched."
+  ],
+  "runtimeAcceptancePending": [
+    "Run a disposable fresh-character/container check.",
+    "Load the affected quicksave twice and reset affected containers.",
+    "Confirm no 42949672xx clamp warnings or 32767-item currency stacks and stable currency totals."
+  ]
+}
